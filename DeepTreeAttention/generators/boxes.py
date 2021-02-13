@@ -10,7 +10,7 @@ from scipy import io
 
 from DeepTreeAttention.generators import neighbors
 from DeepTreeAttention.generators.extract_patches import extract_patches
-from DeepTreeAttention.utils.image import image_normalize, resize, crop_image
+from DeepTreeAttention.utils.image import image_normalize, resize, crop_image, screen_patches
 from shapely import wkt
     
 def generate_tfrecords(
@@ -231,6 +231,9 @@ def write_tfrecord(filename, HSI_images, RGB_images, domains, sites, elevations,
     for index, domain, site, HSI_image, RGB_image, label, elevation, neighbor_array, neighbor_distance in zipped:
         
         HSI_patches = extract_patches(HSI_image, width = HSI_size, height=HSI_size)
+        
+        #screen patches
+        HSI_patches = screen_patches(HSI_patches)
         
         for pixel in HSI_patches:      
             tf_example = create_record(

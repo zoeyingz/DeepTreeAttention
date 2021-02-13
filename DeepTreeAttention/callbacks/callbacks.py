@@ -5,12 +5,10 @@ import os
 import numpy as np
 import pandas as pd
 
-from datetime import datetime
 from DeepTreeAttention.utils import metrics
 from DeepTreeAttention.visualization import visualize
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.callbacks import Callback, TensorBoard
-from tensorflow import expand_dims
 
 class F1Callback(Callback):
 
@@ -19,9 +17,10 @@ class F1Callback(Callback):
         Args:
             n: number of epochs to run. If n=4, function will run every 4 epochs
             y_true: instead of iterating through the dataset every time, just do it once and pass the true labels to the function
+            eval_dataset_with_ids: a data generator to yeild, index, data, where index is the position to group trees.
         """
         self.experiment = experiment
-        self.eval_dataset = eval_dataset
+        self.eval_dataset_with_ids = eval_dataset
         self.label_names = label_names
         self.submodel = submodel
         self.n = n
@@ -30,23 +29,16 @@ class F1Callback(Callback):
  
     def on_train_end(self, logs={}):
             
-        y_pred = []
-        sites = []
-        
-        #gather site and species matrix
-        y_pred = self.model.predict(self.eval_dataset)
-        
-        if self.submodel in ["spectral","spatial"]:
-            y_pred = y_pred[0]
+        results = metrics.predict_crowns(self.model, self.eval_dataset_with_ids)
         
         #F1
-        macro, micro = metrics.f1_scores(self.y_true, y_pred)
+        macro, micro = metrics.f1_scores(results.true, results.predicted)
         self.experiment.log_metric("Final MicroF1", micro)
         self.experiment.log_metric("Final MacroF1", macro)
         
         #Log number of predictions to make sure its constant
-        self.experiment.log_metric("Prediction samples",y_pred.shape[0])
-        results = pd.DataFrame({"true":np.argmax(self.y_true, 1),"predicted":np.argmax(y_pred, 1)})
+        self.experiment.log_metric("Prediction samples",results.shape[0])
+        results = pd.DataFrame({"true":np.argmax(results.true, 1),"predicted":np.argmax(y_pred, 1)})
         #assign labels
         if self.label_names:
             results["true_taxonID"] = results.true.apply(lambda x: self.label_names[x])
@@ -80,22 +72,15 @@ class F1Callback(Callback):
         if not epoch % self.n == 0:
             return None
             
-        y_pred = []
-        sites = []
-        
-        #gather site and species matrix
-        y_pred = self.model.predict(self.eval_dataset)
-        
-        if self.submodel in ["spectral","spatial"]:
-            y_pred = y_pred[0]
-        
+        majority = metrics.predict_crowns(self.model, self.eval_dataset_with_ids, self.submodel)
+    
         #F1
-        macro, micro = metrics.f1_scores(self.y_true, y_pred)
+        macro, micro = metrics.f1_scores(majority.true, majority.predicted)
         self.experiment.log_metric("MicroF1", micro)
         self.experiment.log_metric("MacroF1", macro)
         
         #Log number of predictions to make sure its constant
-        self.experiment.log_metric("Prediction samples",y_pred.shape[0])
+        self.experiment.log_metric("Prediction samples",majority.shape[0])
                                
 class ConfusionMatrixCallback(Callback):
 
@@ -108,7 +93,7 @@ class ConfusionMatrixCallback(Callback):
         
     def on_train_end(self, epoch, logs={}):
         
-        y_pred = self.model.predict(self.dataset)
+        metrics.predict_crowns(self.model, self.eval_dataset_with_ids)
                     
         if self.submodel is "metadata":
             name = "Metadata Confusion Matrix"        
@@ -142,10 +127,12 @@ class ImageCallback(Callback):
         images = []
         y_pred = []
         y_true = []
+        box_index = []
         
         limit = 20
         num_images = 0
-        for data, label in self.dataset:
+        for index, batch in self.dataset:
+            data, label = batch
             if num_images < limit:
                 pred = self.model.predict(data)                    
                 images.append(data)
@@ -153,9 +140,11 @@ class ImageCallback(Callback):
                 if self.submodel:
                     y_pred.append(pred[0])
                     y_true.append(label[0])
+                    box_index.append(index[0])
                 else:
                     y_pred.append(pred)
-                    y_true.append(label)                    
+                    y_true.append(label)    
+                    box_index.append(index)
 
                 num_images += label.shape[0]
             else:
@@ -164,20 +153,21 @@ class ImageCallback(Callback):
         images = np.vstack(images)
         y_true = np.concatenate(y_true)
         y_pred = np.concatenate(y_pred)
+        box_index = np.concatenate(box_index)
 
         y_true = np.argmax(y_true, axis=1)
         y_pred = np.argmax(y_pred, axis=1)
 
         true_taxonID = [self.label_names[x] for x in y_true]
         pred_taxonID = [self.label_names[x] for x in y_pred]
-
-        counter = 0
-        for label, prediction, image in zip(true_taxonID, pred_taxonID, images):
-            figure = visualize.plot_prediction(image=image,
-                                               prediction=prediction,
-                                               label=label)
-            self.experiment.log_figure(figure_name="{}_{}".format(label, counter))
-            counter += 1
+        
+        results = pd.DataFrame({"true": true_taxonID, "predicted": pred_taxonID,"box_index":box_index})
+        grouped = results.groupby("box_index")
+        
+        for name, group in grouped:
+            label = group.true.unique()[0]
+            figure = visualize.plot_prediction(group)
+            self.experiment.log_figure(figure_name="{}_{}".format(label,name))
 
 
 def create(experiment, train_data, validation_data, train_shp, log_dir=None, label_names=None, submodel=False):

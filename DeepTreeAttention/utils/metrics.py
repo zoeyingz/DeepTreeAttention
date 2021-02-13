@@ -1,8 +1,48 @@
-import tensorflow as tf
 import numpy as np
+import pandas as pd
 from sklearn.metrics import f1_score
-import geopandas as gpd
 
+def predict_pixels(model, eval_dataset_with_ids, submodel=None):
+    """For a tf.dataset which yields index, (data, label) return pixel level predictions
+    Args:
+       model: a keras model object
+       eval_dataset_with_ids: tf.dataset that yields index, (data,label)
+       submodel: whether to select a index of data for multi-input models
+    Returns:
+       majority: a pandas dataframe with true class, predicted class and crown index
+    """
+    pixel_predictions = []
+    box_index = []
+    true_label = []
+    
+    for index, batch in eval_dataset_with_ids:
+        data, label = batch
+        pixels = model.predict(data)
+        
+        if submodel:
+            pixels = pixels[0]
+            
+        pixel_predictions.append(pixels)
+        box_index.append(index)
+        true_label.append(label)
+    
+    pixel_predictions = np.concatenate(pixel_predictions)
+    box_index = np.concatenate(box_index)
+    true_label = np.concatenate(true_label)
+    
+    return box_index, pixel_predictions
+
+def predict_crowns(model, eval_dataset_with_ids):
+    true_pixels, predicted_pixels, box_index = predict_pixels(model, eval_dataset_with_ids)
+    results = pd.DataFrame({"true": true_pixels, "predicted": predicted_pixels,"crown":box_index})
+    
+    #majority vole on class per crown
+    majority_predicted = results.groupby("crown").apply(lambda x: x.predicted.value_counts().index[0])
+    majority_true = results.groupby("crown").apply(lambda x: x.true.value_counts().index[0])
+    majority = pd.merge(majority_predicted,majority_true)
+    
+    return majority
+    
 def site_confusion(y_true, y_pred, site_lists):
     """What proportion of misidentified species come from the same site?
     Args: 

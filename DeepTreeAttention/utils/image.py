@@ -62,3 +62,12 @@ def crop_image(src, box, expand=0):
         raise ValueError("Empty frame crop for box {} in sensor path {}".format(box, src))
         
     return masked_image
+
+
+def screen_patches(patches):
+    """Perform filters and operations on individual patches of crowns"""
+    
+    #Remove edge patches without any 3d shape
+    patches = [x for x in patches if len(x.shape) == 3]
+    
+    return patches
