@@ -107,13 +107,6 @@ if __name__ == "__main__":
                 model.train(submodel="metadata", experiment=experiment)
                 model.metadata_model.save("{}/metadata_model.h5".format(save_dir))
             
-            ##Train subnetwork
-            experiment.log_parameter("Train subnetworks", True)
-            with experiment.context_manager("HSI_spatial_subnetwork"):
-                print("Train HSI spatial subnetwork")
-                model.read_data(mode="HSI_submodel")
-                model.train(submodel="spatial", sensor="hyperspectral", experiment=experiment)
-            
             with experiment.context_manager("HSI_spectral_subnetwork"):
                 print("Train HSI spectral subnetwork")    
                 model.train(submodel="spectral", sensor="hyperspectral", experiment=experiment)
@@ -125,11 +118,6 @@ if __name__ == "__main__":
                 model.train(sensor="hyperspectral", experiment=experiment)
                 model.HSI_model.save("{}/HSI_model.h5".format(save_dir))
                 
-                #Get Alpha score for the weighted spectral/spatial average. Higher alpha favors spatial network.
-                if model.config["train"]["HSI"]["weighted_sum"]:
-                    estimate_a = model.HSI_model.get_layer("weighted_sum").get_weights()
-                    experiment.log_metric(name="spatial-spectral weight", value=estimate_a[0][0])
-            
             
     ##Ensemble
     model.read_data(mode="ensemble")

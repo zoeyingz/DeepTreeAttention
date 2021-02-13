@@ -144,8 +144,8 @@ class AttentionModel():
             print("Running in parallel on {} GPUs".format(self.strategy.num_replicas_in_sync))          
             self.config["train"]["batch_size"] = self.config["train"]["batch_size"] * self.strategy.num_replicas_in_sync
             with self.strategy.scope():
-                self.HSI_model, self.HSI_spatial, self.HSI_spectral = Hang.create_models(self.HSI_size, self.HSI_size, self.HSI_channels, self.classes, self.config["train"]["learning_rate"])
-                self.RGB_model, self.RGB_spatial, self.RGB_spectral = Hang.create_models(self.RGB_size, self.RGB_size, self.RGB_channels, self.classes, self.config["train"]["learning_rate"])
+                self.HSI_model, self.HSI_spectral = Hang.create_models(self.HSI_size, self.HSI_size, self.HSI_channels, self.classes, self.config["train"]["learning_rate"])
+                self.RGB_model, self.RGB_spectral = Hang.create_models(self.RGB_size, self.RGB_size, self.RGB_channels, self.classes, self.config["train"]["learning_rate"])
             
                 #create a metadata model
                 self.metadata_model = metadata.create(classes=self.classes, sites=self.sites, domains=self.domains, learning_rate=self.config["train"]["learning_rate"])
@@ -158,8 +158,8 @@ class AttentionModel():
                                                                  name='acc')])      
                                 
         else:
-            self.HSI_model, self.HSI_spatial, self.HSI_spectral = Hang.create_models(self.HSI_size, self.HSI_size, self.HSI_channels, self.classes, self.config["train"]["learning_rate"])
-            self.RGB_model, self.RGB_spatial, self.RGB_spectral = Hang.create_models(self.RGB_size, self.RGB_size, self.RGB_channels, self.classes, self.config["train"]["learning_rate"])
+            self.HSI_model, self.HSI_spectral = Hang.create_models(self.HSI_size, self.HSI_size, self.HSI_channels, self.classes, self.config["train"]["learning_rate"])
+            self.RGB_model, self.RGB_spectral = Hang.create_models(self.RGB_size, self.RGB_size, self.RGB_channels, self.classes, self.config["train"]["learning_rate"])
             
             #create a metadata model
             self.metadata_model = metadata.create(classes=self.classes, sites=self.sites, domains=self.domains, learning_rate=self.config["train"]["learning_rate"])
@@ -297,23 +297,9 @@ class AttentionModel():
                 validation_data=self.val_split,            
                 callbacks=callback_list,
                 class_weight=class_weight)
-        else:
-            if submodel == "spatial":
-                if sensor == "hyperspectral":
-                    self.HSI_spatial.fit(self.train_split,
-                                           epochs=int(self.config["train"]["HSI"]["epochs"]),
-                                           validation_data=self.val_split,
-                                           callbacks=callback_list,
-                                           class_weight=class_weight)
-                
-                elif sensor == "RGB":
-                    self.RGB_spatial.fit(self.train_split,
-                                                     epochs=int(self.config["train"]["RGB"]["epochs"]),
-                                                       validation_data=self.val_split,
-                                                       callbacks=callback_list,
-                                                       class_weight=class_weight)                
+        else:         
     
-            elif submodel == "spectral":
+            if submodel == "spectral":
                 if sensor == "hyperspectral":
                     self.HSI_spectral.fit(self.train_split,
                                            epochs=int(self.config["train"]["HSI"]["epochs"]),

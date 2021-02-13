@@ -21,6 +21,7 @@ def extract_patches(image, width, height):
 
     image = tf.expand_dims(image, 0)
     image_patches = tf.image.extract_patches(image, ksizes, strides, rates, padding)
+    image_patches = tf.reshape(image_patches,[-1,width,height,369])
 
     #Squeeze batch array
     image_patches = tf.squeeze(image_patches)
