@@ -266,9 +266,12 @@ def create_record(HSI_image, RGB_image, index, domain, site, elevation, classes,
         tf example parser
     """
     
-    HSI_rows = HSI_image.shape[0]
-    HSI_cols = HSI_image.shape[1]
-    HSI_depth = HSI_image.shape[2]
+    try:
+        HSI_rows = HSI_image.shape[0]
+        HSI_cols = HSI_image.shape[1]
+        HSI_depth = HSI_image.shape[2]
+    except Exception as e:
+        raise ValueError("HSI image with shape {} has index error for box index {}:  {}".format(HSI_image.shape, index, e))
     
     RGB_rows = RGB_image.shape[0]
     RGB_cols = RGB_image.shape[1]
