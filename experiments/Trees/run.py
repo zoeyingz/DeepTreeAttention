@@ -109,6 +109,7 @@ if __name__ == "__main__":
             
             with experiment.context_manager("HSI_spectral_subnetwork"):
                 print("Train HSI spectral subnetwork")    
+                model.read_data(mode="HSI_submodel")
                 model.train(submodel="spectral", sensor="hyperspectral", experiment=experiment)
                     
             #Train full model
