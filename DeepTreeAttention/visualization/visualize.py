@@ -96,3 +96,6 @@ def canopyPosition_barplot(y_true, y_pred, box_index, canopydict):
     plt.xticks(fontsize=8)
     
     return ax    
+
+def crown_pixels():
+    pass

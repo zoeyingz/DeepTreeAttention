@@ -104,6 +104,7 @@ def test_metadata(created_records):
         assert elevation.numpy().shape == (2,)
         assert site.numpy().shape == (2,10)
         assert domain.numpy().shape == (2,10)
+        assert label_batch.numpy().shape == (2,6)
         
 def test_RGB_submodel(created_records):    
     dataset = boxes.tf_dataset(created_records, batch_size=2, mode = "RGB_submodel")

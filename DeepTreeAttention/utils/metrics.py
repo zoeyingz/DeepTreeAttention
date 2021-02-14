@@ -21,6 +21,7 @@ def predict_pixels(model, eval_dataset_with_ids, submodel=None):
         
         if submodel:
             pixels = pixels[0]
+            label = label[0]
             
         pixel_predictions.append(pixels)
         box_index.append(index)
@@ -29,16 +30,19 @@ def predict_pixels(model, eval_dataset_with_ids, submodel=None):
     pixel_predictions = np.concatenate(pixel_predictions)
     box_index = np.concatenate(box_index)
     true_label = np.concatenate(true_label)
-    
-    return box_index, pixel_predictions
 
-def predict_crowns(model, eval_dataset_with_ids):
-    true_pixels, predicted_pixels, box_index = predict_pixels(model, eval_dataset_with_ids)
+    pixel_predictions = np.argmax(pixel_predictions, 1)
+    true_label = np.argmax(true_label, 1)
+    
+    return true_label, pixel_predictions, box_index
+
+def predict_crowns(model, eval_dataset_with_ids, submodel):
+    true_pixels, predicted_pixels, box_index = predict_pixels(model, eval_dataset_with_ids, submodel)
     results = pd.DataFrame({"true": true_pixels, "predicted": predicted_pixels,"crown":box_index})
     
     #majority vole on class per crown
-    majority_predicted = results.groupby("crown").apply(lambda x: x.predicted.value_counts().index[0])
-    majority_true = results.groupby("crown").apply(lambda x: x.true.value_counts().index[0])
+    majority_predicted = results.groupby("crown").apply(lambda x: x.predicted.value_counts().index[0]).reset_index(name="predicted")
+    majority_true = results.groupby("crown").apply(lambda x: x.true.value_counts().index[0]).reset_index(name="true")
     majority = pd.merge(majority_predicted,majority_true)
     
     return majority
@@ -120,10 +124,8 @@ def f1_scores(y_true, y_pred):
         micro: micro averge fscore
     """
     #F1 scores
-    y_true_integer = np.argmax(y_true, axis=1)
-    y_pred_integer = np.argmax(y_pred, axis=1)
 
-    macro = f1_score(y_true_integer, y_pred_integer, average='macro')
-    micro = f1_score(y_true_integer, y_pred_integer, average='micro')
+    macro = f1_score(y_true, y_pred, average='macro')
+    micro = f1_score(y_true, y_pred, average='micro')
 
     return macro, micro
