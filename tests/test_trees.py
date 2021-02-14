@@ -202,6 +202,9 @@ def test_train_callbacks(tfrecords, mod):
     mod.read_data(mode="metadata")
     mod.train(experiment=experiment,submodel="metadata")
     
+    mod.read_data(mode="ensemble")
+    mod.ensemble(experiment=experiment)
+    
 def test_predict(tfrecords,mod):
     mod.config["evaluation"]["ground_truth_path"] = test_predictions
     mod.config["evaluation"]["tfrecords"] = os.path.dirname(tfrecords[0])
