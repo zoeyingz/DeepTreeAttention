@@ -328,7 +328,7 @@ def _neighbor_parse_(tfrecord):
         'neighbor_distances': tf.io.FixedLenFeature([4],tf.float32)
     }
     
-    features['HSI_image/data'] = tf.io.FixedLenFeature([4*4*369], tf.float32)        
+    features['HSI_image/data'] = tf.io.FixedLenFeature([2*2*369], tf.float32)        
     features["HSI_image/height"] =  tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/width"] = tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/depth"] = tf.io.FixedLenFeature([], tf.int64)
@@ -373,7 +373,7 @@ def _ensemble_parse_(tfrecord):
         "elevation": tf.io.FixedLenFeature([], tf.float32),   
     }
     
-    features['HSI_image/data'] = tf.io.FixedLenFeature([4*4*369], tf.float32)        
+    features['HSI_image/data'] = tf.io.FixedLenFeature([2*2*369], tf.float32)        
     features["HSI_image/height"] =  tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/width"] = tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/depth"] = tf.io.FixedLenFeature([], tf.int64)
@@ -409,7 +409,7 @@ def _HSI_parse_(tfrecord):
         "label": tf.io.FixedLenFeature([], tf.int64),   
     }
     
-    features['HSI_image/data'] = tf.io.FixedLenFeature([4*4*369], tf.float32)        
+    features['HSI_image/data'] = tf.io.FixedLenFeature([2*2*369], tf.float32)        
     features["HSI_image/height"] =  tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/width"] = tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/depth"] = tf.io.FixedLenFeature([], tf.int64)
@@ -430,7 +430,7 @@ def _HSI_autoencoder_parse_(tfrecord):
     features = {
     }
     
-    features['HSI_image/data'] = tf.io.FixedLenFeature([4*4*369], tf.float32)        
+    features['HSI_image/data'] = tf.io.FixedLenFeature([2*2*369], tf.float32)        
     features["HSI_image/height"] =  tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/width"] = tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/depth"] = tf.io.FixedLenFeature([], tf.int64)
@@ -449,7 +449,7 @@ def _HSI_submodel_parse_(tfrecord):
         "label": tf.io.FixedLenFeature([], tf.int64),   
     }
     
-    features['HSI_image/data'] = tf.io.FixedLenFeature([4*4*369], tf.float32)        
+    features['HSI_image/data'] = tf.io.FixedLenFeature([2*2*369], tf.float32)        
     features["HSI_image/height"] =  tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/width"] = tf.io.FixedLenFeature([], tf.int64)
     features["HSI_image/depth"] = tf.io.FixedLenFeature([], tf.int64)
