@@ -19,7 +19,7 @@ def predict_pixels(model, eval_dataset_with_ids, submodel=None):
         data, label = batch
         pixels = model.predict(data)
         
-        if submodel in ["spectral"]:
+        if submodel in ["spectral","spatial"]:
             pixels = pixels[0]
             label = label[0]
             

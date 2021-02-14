@@ -194,7 +194,7 @@ def test_train_callbacks(tfrecords, mod):
     
     #update epoch manually
     mod.config["train"]["RGB"]["epochs"] = 1
-    mod.train(sensor="RGB", submodel="spectral",experiment=experiment)
+    mod.train(sensor="RGB", submodel="spatial",experiment=experiment)
 
     mod.read_data(mode="RGB")
     mod.train(experiment=experiment, sensor="RGB")
