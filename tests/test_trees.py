@@ -201,6 +201,9 @@ def test_train_callbacks(tfrecords, mod):
     mod.read_data(mode="RGB")
     mod.train(experiment=experiment, sensor="RGB")
 
+    mod.read_data(mode="metadata")
+    mod.train(experiment=experiment,submodel="metadata")
+    
 def test_predict(tfrecords,mod):
     mod.config["evaluation"]["ground_truth_path"] = test_predictions
     mod.config["evaluation"]["tfrecords"] = os.path.dirname(tfrecords[0])
