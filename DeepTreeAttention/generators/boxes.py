@@ -148,6 +148,7 @@ def generate_tfrecords(
         filename = "{}/{}_{}.tfrecord".format(savedir, basename, counter)
         
         resized_rgb_crops = [resize(x, RGB_size, RGB_size) for x in chunk_RGB_crops]
+        chunk_HSI_crops = [image_normalize(x) for x in chunk_HSI_crops]
         
         write_tfrecord(filename=filename,
                        HSI_images=chunk_HSI_crops,
