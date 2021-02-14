@@ -6,6 +6,7 @@ from skimage import exposure
 import os
 import pandas as pd
 import geopandas as gpd
+from DeepTreeAttention.utils.metrics import predict_pixels
 
 def normalize(array):
     """Normalizes numpy arrays into scale 0.0 - 1.0"""
@@ -97,5 +98,14 @@ def canopyPosition_barplot(y_true, y_pred, box_index, canopydict):
     
     return ax    
 
-def crown_pixels():
-    pass
+def crown_histogram(model, dataset, submodel, experiment, label_dict):
+    true_label, pixel_predictions, box_index = predict_pixels(model, dataset, submodel)
+    results = pd.DataFrame({"true": true_label, "predicted": pixel_predictions,"crown":box_index}) 
+    crowns = results.crown.unique()
+    for crown in crowns:
+        crown_pixels = results[results.crown == crown]
+        true_class = label_dict[crown_pixels.true.unique()[0]]
+        class_totals = crown_pixels.predicted.value_counts().reset_index()
+        class_totals["taxonID"] = [label_dict[x] for x in class_totals["index"].values][0]
+        class_totals.plot.bar(x="taxonID",y="predicted")
+        experiment.log_figure("{}_{}".format(true_class, crown))

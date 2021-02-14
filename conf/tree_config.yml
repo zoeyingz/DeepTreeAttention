@@ -18,7 +18,7 @@ train:
     resampled_per_taxa: 50
     HSI:
         sensor_channels: 369
-        crop_size: 10
+        crop_size: 4
         weighted_sum: True
         epochs: 120
         extend_box: 0 #expand DeepForest bounding boxes by x meters at edge
@@ -29,7 +29,7 @@ train:
         epochs: 120
         extend_box: 0 #expand DeepForest bounding boxes by x meters at edge
     metadata:
-        epochs: 100
+        epochs: 10
     ensemble:
         freeze: False
         epochs: 120
@@ -44,10 +44,6 @@ train:
     training_fraction: 0.9
     gpus: 1
     pretrain: True #Train the submodels before ensembling all together
-neighbors:
-    model_dir: /orange/idtrees-collab/DeepTreeAttention/snapshots/20210128_193918/
-    k_neighbors: 4
-    freeze: False
 autoencoder:
     epochs: 50
     quantile: 0.98

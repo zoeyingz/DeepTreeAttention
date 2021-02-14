@@ -120,9 +120,13 @@ def test_generate(mod):
     
     dataset = boxes.tf_dataset(created_records, batch_size=1)
     counter = 0
+    labels = []
     for data, label in dataset:
         counter+=data[0].shape[0]
-        
+        labels.append(tf.argmax(label,1).numpy())
+
+    assert all(np.unique(labels) == [0,1])
+    
     assert counter > shp.shape[0]
 
 def test_split_data(mod, tfrecords):
@@ -190,7 +194,10 @@ def test_ensemble(tfrecords, mod):
          
 @pytest.mark.skipif(is_travis, reason="Cannot load comet on TRAVIS")
 def test_train_callbacks(tfrecords, mod):
-    mod.read_data("RGB_submodel", validation_split=True)
+    mod.config["evaluation"]["ground_truth_path"] = test_predictions
+    mod.config["evaluation"]["tfrecords"] = os.path.dirname(tfrecords[0])
+    
+    mod.read_data("RGB_submodel")
     
     #update epoch manually
     mod.config["train"]["RGB"]["epochs"] = 1
@@ -200,9 +207,11 @@ def test_train_callbacks(tfrecords, mod):
     mod.train(experiment=experiment, sensor="RGB")
 
     mod.read_data(mode="metadata")
+    mod.config["train"]["metadata"]["epochs"] = 1    
     mod.train(experiment=experiment,submodel="metadata")
     
     mod.read_data(mode="ensemble")
+    mod.config["train"]["ensemble"]["epochs"] = 1
     mod.ensemble(experiment=experiment)
     
 def test_predict(tfrecords,mod):

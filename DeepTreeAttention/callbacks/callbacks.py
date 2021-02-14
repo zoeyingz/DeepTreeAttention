@@ -119,9 +119,7 @@ class ImageCallback(Callback):
 
     def on_train_end(self, epoch, logs={}):
         """Plot sample images with labels annotated"""
-        
-        visualize.crown_pixels(self.model, self.dataset)
-        self.experiment.log_figure(figure_name="{}_{}".format(label,name))
+        visualize.crown_histogram(self.model, self.dataset, self.submodel, label_dict=self.label_names, experiment=self.experiment)
 
 def create(experiment, train_data, validation_data, train_shp, log_dir=None, label_names=None, submodel=False):
     """Create a set of callbacks
@@ -150,9 +148,9 @@ def create(experiment, train_data, validation_data, train_shp, log_dir=None, lab
     f1 = F1Callback(experiment=experiment, eval_dataset=validation_data, label_names=label_names, submodel=submodel, train_shp=train_shp)
     callback_list.append(f1)
     
-    #if submodel is None:
-        #plot_images = ImageCallback(experiment, validation_data, label_names, submodel=submodel)
-        #callback_list.append(plot_images)
+    if submodel is None:
+        plot_images = ImageCallback(experiment, validation_data, label_names, submodel=submodel)
+        callback_list.append(plot_images)
         
     if log_dir is not None:
         print("saving tensorboard logs at {}".format(log_dir))

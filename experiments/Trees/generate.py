@@ -29,10 +29,6 @@ def run(record, savedir, raw_box_dir):
     #Read record
     df = gpd.read_file(record)
     
-    #get bounding boxes from the surrounding trees
-    basename = os.path.basename(record)
-    raw_boxes ="{}/{}".format(raw_box_dir, basename)
-    
     att = AttentionModel(config="/home/b.weinstein/DeepTreeAttention/conf/tree_config.yml")
     ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
@@ -66,13 +62,9 @@ def run(record, savedir, raw_box_dir):
     h5_path = find_sensor_path(bounds=df.total_bounds, lookup_pool=hyperspectral_pool)    
     elevation = elevation_from_tile(h5_path)
     
-    att.ensemble_model = tf.keras.models.load_model("{}/Ensemble.h5".format(att.config["neighbors"]["model_dir"]), custom_objects={"WeightedSum":WeightedSum})    
-    ensemble_model = tf.keras.Model(att.ensemble_model.inputs, att.ensemble_model.get_layer("ensemble_learn").output)
-    
     #Generate record when complete   
     tfrecords = att.generate(
         shapefile=record,
-        raw_boxes=raw_boxes,
         HSI_sensor_path=hyperspec_path,
         RGB_sensor_path=rgb_path,
         chunk_size=500,
@@ -82,7 +74,6 @@ def run(record, savedir, raw_box_dir):
         elevation=elevation,
         label_column="taxonID",
         species_label_dict=species_label_dict,
-        ensemble_model=None,
         savedir=savedir
     )
     
