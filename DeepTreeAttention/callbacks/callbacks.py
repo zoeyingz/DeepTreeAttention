@@ -90,7 +90,7 @@ class ConfusionMatrixCallback(Callback):
         
     def on_train_end(self, epoch, logs={}):
         
-        results = metrics.predict_crowns(self.model, self.dataset)
+        results = metrics.predict_crowns(self.model, self.dataset, self.submodel)
                     
         if self.submodel is "metadata":
             name = "Metadata Confusion Matrix"        
