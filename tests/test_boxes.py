@@ -18,7 +18,7 @@ test_hsi_tile = "data/raw/2019_BART_5_320000_4881000_image_hyperspectral_crop.ti
 
 @pytest.fixture()
 def ensemble_model():
-    sensor_inputs, sensor_outputs, spectral = Hang2020_geographic.define_model(classes=2, height=5, width=5, channels=369)    
+    sensor_inputs, sensor_outputs, spatial, spectral = Hang2020_geographic.define_model(classes=2, height=5, width=5, channels=369)    
     model1 = tf.keras.Model(inputs=sensor_inputs, outputs=sensor_outputs)
     
     metadata_model = metadata.create(classes=2, sites=10, domains =10, learning_rate=0.001)

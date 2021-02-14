@@ -34,14 +34,14 @@ def HSI_image():
 @pytest.mark.parametrize("classes", [3, 10, 20])
 def test_model(RGB_image, classes):
     batch, height, width, channels = RGB_image.shape 
-    sensor_inputs, sensor_outputs, spectral = Hang.define_model(classes=classes, height=height, width=width, channels=channels)    
+    sensor_inputs, sensor_outputs, spatial, spectral = Hang.define_model(classes=classes, height=height, width=width, channels=channels)    
     model = tf.keras.Model(inputs=sensor_inputs, outputs=sensor_outputs)
     prediction = model.predict(RGB_image)
     assert prediction.shape == (1, classes)
 
 def test_ensemble(HSI_image, metadata_data):    
     batch, height, width, channels = HSI_image.shape     
-    sensor_inputs, sensor_outputs, spectral = Hang.define_model(classes=2, height=height, width=width, channels=channels)    
+    sensor_inputs, sensor_outputs, spatial, spectral = Hang.define_model(classes=2, height=height, width=width, channels=channels)    
     model1 = tf.keras.Model(inputs=sensor_inputs, outputs=sensor_outputs)
     
     metadata_model = metadata.create(classes=2, sites=10, domains =10, learning_rate=0.001)
