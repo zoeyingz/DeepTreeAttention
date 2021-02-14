@@ -20,8 +20,6 @@ import tensorflow as tf
 from DeepTreeAttention.utils import metrics
 from DeepTreeAttention import trees
 from DeepTreeAttention.generators import boxes
-from matplotlib.pyplot import imshow
-from tensorflow.keras import metrics as keras_metrics
 
 #random label predictions just for testing
 test_predictions = "data/raw/2019_BART_5_320000_4881000_image_small.shp"
@@ -210,7 +208,5 @@ def test_predict(tfrecords,mod):
     mod.read_data(mode="HSI")
     df = gpd.read_file(test_predictions)
     shp = mod.predict(mod.HSI_model)
-    
-    assert df.shape[0] > shp.shape[0]
     
     
