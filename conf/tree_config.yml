@@ -20,7 +20,7 @@ train:
         sensor_channels: 369
         crop_size: 4
         weighted_sum: True
-        epochs: 120
+        epochs: 60
         extend_box: 0 #expand DeepForest bounding boxes by x meters at edge
     RGB:
         sensor_channels: 3
@@ -32,7 +32,7 @@ train:
         epochs: 10
     ensemble:
         freeze: False
-        epochs: 120
+        epochs: 60
     tfrecords: /orange/idtrees-collab/DeepTreeAttention/tfrecords/train/
     ground_truth_path: /home/b.weinstein/DeepTreeAttention/data/processed/train.shp  #path to ground truth class shapefile   
     learning_rate: .001
